@@ -1,0 +1,29 @@
+.Toolbar {
+    height: 56px;
+    width: 100%;
+    position: fixed; /* POS fixed for always sitting on the top and top and left properties to be located at left upper corner */
+    top:0;
+    left:0;
+    background-color: #703B09;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    box-sizing: border-box; /* toolbar is sized correctly even with padding */
+    z-index: 90;
+}
+
+.Toolbar nav {
+    height: 100%; /* nav items span the full heigth of toolbar */
+
+}
+
+.Logo {
+    height: 80%;
+}
+
+@media (max-width: 499px) {
+    .DesktopOnly {
+        display: none;
+    }
+}
