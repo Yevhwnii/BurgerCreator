@@ -4,6 +4,8 @@ import Aux from '../../hoc/Auxaliary'
 
 import Burger from '../../components/Burger/Burger'
 import BuildControls from '../../components/Burger/BuildControls/BuildControls'
+import Modal from '../../components/UI/Modal/Modal'
+import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary'
 
 
 const INGREDIENT_PRICES = {
@@ -24,7 +26,8 @@ class BurgerBuilder extends Component {
             meat: 0
         },
         totalPrice: 4,
-        purchaseable: false
+        purchaseable: false,
+        purchasing: false
     }
 
     updatePurchaseState (ingredients) {
@@ -86,6 +89,16 @@ class BurgerBuilder extends Component {
         this.updatePurchaseState(updatedIngredients)
     }
 
+    purchaseHandler = () => {
+        this.setState({
+            purchasing: true
+        })
+    }
+
+    purchaseCancelHandler = () => {
+        this.setState({purchasing: false})
+    }
+
     render() {
         const disableInfo = { // UPD2
             ...this.state.ingredients
@@ -94,13 +107,18 @@ class BurgerBuilder extends Component {
             disableInfo[key] = disableInfo[key] <= 0
         }
         return (
+            
             <Aux>
+                <Modal show={this.state.purchasing} modalClosed = {this.purchaseCancelHandler}>
+                    <OrderSummary ingredients={this.state.ingredients} />
+                </Modal>
                 <Burger  ingredients={this.state.ingredients}  /> {/* UPD1 */}
                 <BuildControls
                 price = {this.state.totalPrice}
                 ingredientAdded={this.addIngredientHandler}
                 ingredientRemoved = {this.removeIngredientHandler}
                 disabled = {disableInfo}
+                ordered={this.purchaseHandler}
                 purchaseable={this.state.purchaseable} />
             </Aux>
         )
@@ -119,4 +137,12 @@ UPD2: disabled info, after looping is just object with keys of type of ingredien
       Then it forwards to burgerControl and simply adds HTML attribute which disables button with css styling.
       This works because when state is updated the whole render method is executed again, so disabledInfo also gets
       refreshed.
+
+UPD3: We use updateState method in our handlers, so in order to not come across with situation when we receive there
+      an old list of ingredients, as soon as we update it in handler, we pass it to the updatedState method, which in
+      its turn do this update check and decides wheather or not button should be disabled.
+
+UPD4: Button blinks because, whenever purchaseable becomes true, it is passed to BuildControls component,
+      and then into disabled attribute of the button. Then in css file we have :not(:disabled) statement which mean
+      whenever button gets out of disabled contidion it blinks.
 */
