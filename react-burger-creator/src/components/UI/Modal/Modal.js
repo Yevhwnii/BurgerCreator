@@ -1,26 +1,34 @@
-import React from 'react';
+import React, {Component} from 'react';
 
 import classes from './Modal.module.css'
 import Aux from '../../../hoc/Auxaliary'
 import Backdrop from '../Backdrop/Backdrop'
 
-const Modal = props => {
+class Modal extends Component  {
 
-    return (
-        <Aux>
-        <Backdrop show = {props.show} clicked={props.modalClosed}  />
-            <div
-                className={classes.Modal}
-                style={{
-                    transform: props.show ? 'translateY(0)' : 'translateY(-100vh)',
-                    opacity: props.show ? '1' : '0'
-                }}>
-                {props.children}
+    shouldComponentUpdate(nextProps, nextState) { // UPD1
+        return nextProps.show !== this.props.show
+    }
 
-            </div>
+    render() {
+        return (
+            <Aux>
+                <Backdrop show={this.props.show} clicked={this.props.modalClosed} />
+                <div
+                    className={classes.Modal}
+                    style={{
+                        transform: this.props.show ? 'translateY(0)' : 'translateY(-100vh)',
+                        opacity: this.props.show ? '1' : '0'
+                    }}>
+                    {this.props.children}
 
-        </Aux>
-    )
+                </div>
+
+            </Aux>
+        )
+    }
+
+    
 };
 
 export default Modal;
@@ -29,5 +37,7 @@ export default Modal;
 This component is responsive for that notification that pops up when you click
 Order Now button. Actually the Modal component itself is just a Box with some styling
 that just wrap the real information that gets passed in as a child.
+
+UPD1: Parent component controls the update of child
 
 */
