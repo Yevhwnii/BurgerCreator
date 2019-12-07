@@ -6,6 +6,9 @@ import Burger from '../../components/Burger/Burger'
 import BuildControls from '../../components/Burger/BuildControls/BuildControls'
 import Modal from '../../components/UI/Modal/Modal'
 import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary'
+import axios from '../../axios-orders'
+import Spinner from '../../components/UI/Spinner/Spinner'
+import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler'
 
 
 const INGREDIENT_PRICES = {
@@ -27,7 +30,8 @@ class BurgerBuilder extends Component {
         },
         totalPrice: 4,
         purchaseable: false,
-        purchasing: false
+        purchasing: false,
+        loading: false
     }
 
     updatePurchaseState (ingredients) {
@@ -101,8 +105,31 @@ class BurgerBuilder extends Component {
         })
     }
 
-    purchaseContinueHandler = () => {
-        alert('You continue!')
+    purchaseContinueHandler = () => { // UPD5
+        //alert('You continue!')
+        this.setState({loading:true})
+        const order = {
+            ingredients: this.state.ingredients,
+            price: this.state.totalPrice,
+            customer: {
+                name: 'Breiter Yevhenii',
+                address: {
+                    street: 'Test 1',
+                    zipCode: '20126',
+                    country: 'Poland'
+                },
+                email: 'test@test.com'
+            },
+            deliveryMethod: 'fastest'
+        }
+        axios.post('/orders.json', order)
+        .then(response => {
+            this.setState({loading:false, purchasing: false})
+        })
+        .catch(error => {
+            this.setState({ loading: false, purchasing: false }) 
+        });
+
     }
     render() {
         const disableInfo = { // UPD2
@@ -111,15 +138,19 @@ class BurgerBuilder extends Component {
         for (let key in disableInfo) {
             disableInfo[key] = disableInfo[key] <= 0
         }
+        let orderSummary = <OrderSummary
+            ingredients={this.state.ingredients}
+            purchaseCanceled={this.purchaseCancelHandler}
+            purchaseContinued={this.purchaseContinueHandler}
+            price={this.state.totalPrice} />
+        if (this.state.loading) {
+            orderSummary = <Spinner/>
+        }
         return (
             
             <Aux>
                 <Modal show={this.state.purchasing} modalClosed = {this.purchaseCancelHandler}>
-                    <OrderSummary
-                     ingredients={this.state.ingredients}
-                      purchaseCanceled = {this.purchaseCancelHandler}
-                      purchaseContinued = {this.purchaseContinueHandler}
-                      price = {this.state.totalPrice} />
+                    {orderSummary}
                 </Modal>
                 <Burger  ingredients={this.state.ingredients}  /> {/* UPD1 */}
                 <BuildControls
@@ -134,7 +165,7 @@ class BurgerBuilder extends Component {
     }
 }
 
-export default BurgerBuilder
+export default withErrorHandler(BurgerBuilder, axios);
 
 /*
 UPD1: div with Burger will be replaced by the Burger component with graphical
@@ -154,4 +185,9 @@ UPD3: We use updateState method in our handlers, so in order to not come across 
 UPD4: Button blinks because, whenever purchaseable becomes true, it is passed to BuildControls component,
       and then into disabled attribute of the button. Then in css file we have :not(:disabled) statement which mean
       whenever button gets out of disabled contidion it blinks.
+
+UPD5: Since firebase is using MongoDB like database, we can simply add to url something and it will automatically 
+      create node for us and store it there. So there we create our order object, which gets filled with data from state,
+      and then we send it to the database which generates id automatically for it and store as json objects. .json in URL should 
+      be always added!!!
 */
