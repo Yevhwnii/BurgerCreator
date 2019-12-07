@@ -22,17 +22,25 @@ const INGREDIENT_PRICES = {
 class BurgerBuilder extends Component {
 
     state = {
-        ingredients: {
-            salad: 0,
-            bacon: 0,
-            cheese: 0,
-            meat: 0
-        },
+        ingredients: null,
         totalPrice: 4,
         purchaseable: false,
         purchasing: false,
-        loading: false
+        loading: false,
+        error: false
     }
+
+    componentDidMount() { // UPD6
+        axios.get('https://react-my-burger-676bc.firebaseio.com/ingredients.json')
+        .then(response => {
+            this.setState({ingredients: response.data})
+        })
+        .catch(error => {
+            this.setState({error:true})
+        })
+    }
+
+
 
     updatePurchaseState (ingredients) {
         
@@ -138,28 +146,38 @@ class BurgerBuilder extends Component {
         for (let key in disableInfo) {
             disableInfo[key] = disableInfo[key] <= 0
         }
-        let orderSummary = <OrderSummary
+        let orderSummary = null
+        let burger = this.state.error ? <p>Ingredients cannot be loadded</p> : <Spinner/>
+        if (this.state.ingredients) {
+        burger = ( // UPD1
+            <Aux>
+                <Burger ingredients={this.state.ingredients} /> 
+                <BuildControls
+                    price={this.state.totalPrice}
+                    ingredientAdded={this.addIngredientHandler}
+                    ingredientRemoved={this.removeIngredientHandler}
+                    disabled={disableInfo}
+                    ordered={this.purchaseHandler}
+                    purchaseable={this.state.purchaseable} />
+            </Aux>
+        )
+        orderSummary = <OrderSummary
             ingredients={this.state.ingredients}
             purchaseCanceled={this.purchaseCancelHandler}
             purchaseContinued={this.purchaseContinueHandler}
             price={this.state.totalPrice} />
-        if (this.state.loading) {
-            orderSummary = <Spinner/>
         }
+        if (this.state.loading) {
+            orderSummary = <Spinner />
+        }
+        
         return (
             
             <Aux>
                 <Modal show={this.state.purchasing} modalClosed = {this.purchaseCancelHandler}>
                     {orderSummary}
                 </Modal>
-                <Burger  ingredients={this.state.ingredients}  /> {/* UPD1 */}
-                <BuildControls
-                price = {this.state.totalPrice}
-                ingredientAdded={this.addIngredientHandler}
-                ingredientRemoved = {this.removeIngredientHandler}
-                disabled = {disableInfo}
-                ordered={this.purchaseHandler}
-                purchaseable={this.state.purchaseable} />
+                {burger}
             </Aux>
         )
     }
@@ -190,4 +208,7 @@ UPD5: Since firebase is using MongoDB like database, we can simply add to url so
       create node for us and store it there. So there we create our order object, which gets filled with data from state,
       and then we send it to the database which generates id automatically for it and store as json objects. .json in URL should 
       be always added!!!
+UPD6: So now, we sending GET request on our backend, and then setState to ingredients in our app.
+      Then, based on fact that ingredients is not null, we do some if checks, and display dynamically and
+      conditionally burger and all other components.
 */
