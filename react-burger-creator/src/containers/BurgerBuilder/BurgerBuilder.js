@@ -115,28 +115,38 @@ class BurgerBuilder extends Component {
 
     purchaseContinueHandler = () => { // UPD5
         //alert('You continue!')
-        this.setState({loading:true})
-        const order = {
-            ingredients: this.state.ingredients,
-            price: this.state.totalPrice,
-            customer: {
-                name: 'Breiter Yevhenii',
-                address: {
-                    street: 'Test 1',
-                    zipCode: '20126',
-                    country: 'Poland'
-                },
-                email: 'test@test.com'
-            },
-            deliveryMethod: 'fastest'
+        // this.setState({loading:true})
+        // const order = {
+        //     ingredients: this.state.ingredients,
+        //     price: this.state.totalPrice,
+        //     customer: {
+        //         name: 'Breiter Yevhenii',
+        //         address: {
+        //             street: 'Test 1',
+        //             zipCode: '20126',
+        //             country: 'Poland'
+        //         },
+        //         email: 'test@test.com'
+        //     },
+        //     deliveryMethod: 'fastest'
+        // }
+        // axios.post('/orders.json', order)
+        // .then(response => {
+        //     this.setState({loading:false, purchasing: false})
+        // })
+        // .catch(error => {
+        //     this.setState({ loading: false, purchasing: false }) 
+        // });
+        const queryParams = []
+        for (let i in this.state.ingredients) {
+            queryParams.push(encodeURIComponent(i) + '=' + encodeURIComponent(this.state.ingredients[i]))
         }
-        axios.post('/orders.json', order)
-        .then(response => {
-            this.setState({loading:false, purchasing: false})
+        queryParams.push('price=' + this.state.totalPrice)
+        const queryString = queryParams.join('&')
+        this.props.history.push({
+            pathname: '/checkout',
+            search: '?' + queryString
         })
-        .catch(error => {
-            this.setState({ loading: false, purchasing: false }) 
-        });
 
     }
     render() {
@@ -208,6 +218,7 @@ UPD5: Since firebase is using MongoDB like database, we can simply add to url so
       create node for us and store it there. So there we create our order object, which gets filled with data from state,
       and then we send it to the database which generates id automatically for it and store as json objects. .json in URL should 
       be always added!!!
+      //// Updated: now it sends all the parameters in query string. To create it we use encode and then creating it and passing as a search query
 UPD6: So now, we sending GET request on our backend, and then setState to ingredients in our app.
       Then, based on fact that ingredients is not null, we do some if checks, and display dynamically and
       conditionally burger and all other components.
