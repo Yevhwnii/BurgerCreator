@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
-import {Route} from 'react-router-dom'
+import {Route, Redirect} from 'react-router-dom'
 import {connect} from 'react-redux'
 
 import CheckoutSummary from '../../components/Order/CheckoutSummary/CheckoutSummary'
 import ContactData from './ContactData/ContactData'
+import * as actions from '../../store/actions/index'
 
 class Checkout extends Component {
 
@@ -12,6 +13,9 @@ class Checkout extends Component {
     //     price: 0
     // }
 
+    // componentWillMount()  {
+    //     this.props.onInitPurhcase()
+    // }
     // componentWillMount() { REDUX ADDED
     //     // extracting data from url
     //     const query = new URLSearchParams(this.props.location.search) //
@@ -36,30 +40,40 @@ class Checkout extends Component {
     }
 
     render() {
-        
-
-        return (
-            <div>
-                <CheckoutSummary 
-                ingredients={this.props.ings}
-                checkoutCancelled = {this.checkoutCancelledHandler}
-                checkoutContinued = {this.checkoutContinuedHandler}
-                 />
-                {/* <Route path={this.props.match.path + '/contact-data'}  REDUX ADDED
+        let summary = <Redirect to="/" />
+        if(this.props.ings) {
+            const purchaseRedirect = this.props.purchased ? <Redirect to="/" /> : null
+            summary = (
+                <div>
+                    {purchaseRedirect}
+                    <CheckoutSummary
+                        ingredients={this.props.ings}
+                        checkoutCancelled={this.checkoutCancelledHandler}
+                        checkoutContinued={this.checkoutContinuedHandler}
+                    />
+                    {/* <Route path={this.props.match.path + '/contact-data'}  REDUX ADDED
                 render={(props) => (<ContactData ingredients={this.state.ingredients} price={+this.state.price} {...props} />)} />  */}
-                <Route path={this.props.match.path + '/contact-data'}
-                   component={ContactData} />
-            </div>
-        )
+                    <Route path={this.props.match.path + '/contact-data'}
+                        component={ContactData} />
+                </div>
+            )
+        }
+        return summary
     }
 };
 
 const mapStateToProps = state => {
     return {
-        ings: state.ingredients
+        ings: state.burgerBuilder.ingredients,
+        purchased: state.order.purchased
     }
 }
 
+// const mapDispatchToProps = dispatch => {
+//     return {
+//         onInitPurhcase: () => dispatch(actions.purchaseInit())
+//     }
+// }
 
 export default connect(mapStateToProps)(Checkout);
 
@@ -74,3 +88,13 @@ export default connect(mapStateToProps)(Checkout);
 
 // Also we send props from Checkout component to ContactData in order to be able have an acess to history props there
 
+// There is a problem when ingredients are loaded here first to pass them as a prop, but they are initially null so way to fix it:
+// either not load checkoutSummary if there are no ings or redirect user from checkout page if there are no ings (choosen)
+
+// Also in order to redirect user after purchasing a burger, we created interesting action called initPurchase,
+// it is field in state which is initially false and changes to true whenever purchase is completed, and resets to false again
+// whenever component remounted
+// REMEMBER!!! since this component is main component and when we click order now we mount it,
+// which means we need to implement componentDidMount here with purchased state!!
+// Actually moved to click listener in burgerbuild since componentwillmount is too late, render method renders with old state
+// So there it acts as a reseter for purchased state.
