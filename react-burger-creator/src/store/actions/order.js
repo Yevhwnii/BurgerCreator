@@ -24,10 +24,10 @@ export const purchaseBurgerStart = () => {
     }
 }
 
-export const purchaseBurger = (orderData) => {
+export const purchaseBurger = (orderData, token) => {
     return dispatch => {
         dispatch(purchaseBurgerStart())
-        axios.post('/orders.json', orderData)
+        axios.post('/orders.json?auth=' + token, orderData)
             .then(response => {
                 dispatch(purchaseBurgerSuccess(response.data.name, orderData))
             })
@@ -63,10 +63,11 @@ export const fetchedOrdersStart = () => {
     }
 }
 
-export const fetchOrders = () => {
+export const fetchOrders = (token, userId) => {
     return dispatch => {
+        const queryParams = '?auth=' + token + '&orderBy="userId"&equalTo="' + userId + '"'
         dispatch(fetchedOrdersStart())
-        axios.get('/orders.json')
+        axios.get('/orders.json' + queryParams )
             .then(res => {
                 const fetchedOrders = []
                 for (let key in res.data) {
@@ -83,3 +84,9 @@ export const fetchOrders = () => {
             })
     }
 }
+
+// We adjusted our order to be able to react on auth state of our application.
+// So orders are not accesible if there is no token in redux store, the same goes with purchasing burger
+
+// So here with these firebase specific url we can access only data related to user, since we are receiving his userId from 
+// redux store and pass it

@@ -4,7 +4,8 @@ import * as actionTypes from '../actions/actionTypes'
 const initialState = {
     ingredients: null,
     totalPrice: 4,
-    error: false
+    error: false,
+    buidling: false
 }
 
 const INGREDIENT_PRICES = {
@@ -18,8 +19,9 @@ const INGREDIENT_PRICES = {
 const addIngredient = (state, action) => {
     return {
         ...state,
+        buidling: true,
         ingredients: {
-            ...state.ingredients,
+            ...state.ingredients,     
             [action.payload.ingredientName]: state.ingredients[action.payload.ingredientName] + 1
         },
         totalPrice: state.totalPrice + INGREDIENT_PRICES[action.payload.ingredientName]
@@ -29,6 +31,7 @@ const addIngredient = (state, action) => {
 const removeIngredient = (state, action) => {
     return {
         ...state,
+        building: true,
         ingredients: {
             ...state.ingredients,
             [action.payload.ingredientName]: state.ingredients[action.payload.ingredientName] - 1
@@ -48,6 +51,7 @@ const setIngredients = (state,action) => {
         },
         totalPrice: 4,
         error: false,
+        buidling: false
     }
 }
 const fetchIngredientsFailed = (state,action) => {

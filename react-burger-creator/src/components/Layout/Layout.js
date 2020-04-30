@@ -1,4 +1,5 @@
 import React, {ReactFragment,Component} from 'react'
+import {connect} from 'react-redux'
 
 import classes from './Layout.module.css'
 
@@ -24,8 +25,12 @@ class Layout extends Component  {
 
     render() { 
         return( <Aux>
-        <Toolbar open={this.sideDrawerOpenHandler}/>
+        <Toolbar 
+            open={this.sideDrawerOpenHandler}
+            isAuth = {this.props.isAuthenticated}
+        />
         <SideDrawer 
+        isAuth={this.props.isAuthenticated}
         closed = {this.sideDrawerClosedHandler}
         open={this.state.showSideDrawer} />
         {/* <div>
@@ -39,7 +44,13 @@ class Layout extends Component  {
     }
 } 
 
-export default Layout
+const mapStateToPtops = state => {
+    return {
+        isAuthenticated: state.auth.token !== null
+    }
+}
+
+export default connect(mapStateToPtops)(Layout)
 
 /*
 UPD1: These names in main div are just placoholders for future components which
