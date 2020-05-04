@@ -7,6 +7,7 @@ import Input from '../../components/UI/Input/Input'
 import Spinner from '../../components/UI/Spinner/Spinner'
 import classes from './Auth.module.css'
 import * as actions from '../../store/actions/index'
+import {updateObject, checkValidity} from '../../shared/utility'
 
 class Auth extends Component {
 
@@ -43,24 +44,7 @@ class Auth extends Component {
         },
         isSignUp: true
     }
-    checkValidity(value, rules)  { // UPD 1
-        let isValid = true
-        if (rules.required) {
-            isValid = value.trim() !== '' && isValid;
-        }
-        if (rules.isEmail) {
-            const testString = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-            isValid = testString.test(value)
-        }
-        if (rules.minLength) {
-            isValid = value.length >= rules.minLength && isValid
-        }
-        if (rules.maxLength) {
-            isValid = value.length <= rules.maxLength && isValid
-        }
 
-        return isValid
-    }
 
     componentDidMount() {
         if(!this.props.buildingBurger && this.props.authRedirectPath !== '/') {
@@ -69,15 +53,13 @@ class Auth extends Component {
     }
 
     inputChangedHandler(event, controlName)  {
-            const updatedControls = {
-                ...this.state.controls,
-                [controlName]: {
-                    ...this.state.controls[controlName],
-                    value: event.target.value,
-                    valid: this.checkValidity(event.target.value, this.state.controls[controlName].validation),
-                    touched: true
-                }
-            }
+        const updatedControls = updateObject(this.state.controls,{
+            [controlName]: updateObject(this.state.controls[controlName], {
+                value: event.target.value,
+                valid: checkValidity(event.target.value, this.state.controls[controlName].validation),
+                touched: true
+            }) 
+        })
             this.setState({ controls: updatedControls })
     }
 

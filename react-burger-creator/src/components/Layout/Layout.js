@@ -1,4 +1,4 @@
-import React, {ReactFragment,Component} from 'react'
+import React, {Component} from 'react'
 import {connect} from 'react-redux'
 
 import classes from './Layout.module.css'
@@ -24,7 +24,8 @@ class Layout extends Component  {
 
 
     render() { 
-        return( <Aux>
+        return(
+    <Aux>
         <Toolbar 
             open={this.sideDrawerOpenHandler}
             isAuth = {this.props.isAuthenticated}
