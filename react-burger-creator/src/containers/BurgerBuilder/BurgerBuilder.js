@@ -20,7 +20,7 @@ import * as burgerBuilderActions from '../../store/actions/index'
 // }
 
 
-class BurgerBuilder extends Component {
+export class BurgerBuilder extends Component {
 
     state = {
         // ingredients: null, redux added
